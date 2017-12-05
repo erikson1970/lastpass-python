@@ -1,11 +1,12 @@
 # coding: utf-8
-from base64 import b64decode
+from base64 import b64decode,b64encode
 import binascii
 import codecs
 from io import BytesIO
 import struct
 import re
 
+from os import urandom
 from Crypto.Cipher import AES
 from Crypto.Util import number
 from Crypto.PublicKey import RSA
@@ -180,6 +181,9 @@ def read_size(stream):
     """Reads a chunk or an item ID."""
     return read_uint32(stream)
 
+def get_urandom(nn):
+    """wrapper for os.urandom(nn)"""
+    return urandom(nn)
 
 def read_payload(stream, size):
     """Reads a payload of a given size from a stream."""
@@ -203,6 +207,9 @@ def decode_base64(data):
     """Decodes a base64 encoded string into raw bytes."""
     return b64decode(data)
 
+def encode_base64(data):
+    """Encodes raw bytes into a base64 encoded string."""
+    return b64encode(data)
 
 def decode_aes256_plain_auto(data, encryption_key):
     """Guesses AES cipher (EBC or CBD) from the length of the plain data."""
@@ -269,6 +276,17 @@ def decode_aes256_cbc_base64(data, encryption_key):
             decode_base64(data[26:]),
             encryption_key)
 
+def encode_aes256_cbc_base64(cleartext, encryption_key, iv):
+    """Encrypts base64 encoded AES-256 CBC bytes."""
+    if not cleartext:
+        return b''
+    else:
+        # LastPass AES-256/CBC/base64 encryted string starts with an "!".
+        # Next 24 bytes are the base64 encoded IV for the cipher.
+        # Then comes the "|".
+        # And the rest is the base64 encoded encrypted payload.
+        return '!' + "%24s"%encode_base64(iv) + '|' + encode_base64(encode_aes256('cbc', iv, cleartext , encryption_key))
+
 
 def decode_aes256(cipher, iv, data, encryption_key):
     """
@@ -283,6 +301,24 @@ def decode_aes256(cipher, iv, data, encryption_key):
     else:
         raise ValueError('Unknown AES mode')
     d = aes.decrypt(data)
-    # http://passingcuriosity.com/2009/aes-encryption-in-python-with-m2crypto/
+    # PKCS#5 style unpad of AES decrypted data - see  http://passingcuriosity.com/2009/aes-encryption-in-python-with-m2crypto/
     unpad = lambda s: s[0:-ord(d[-1:])]
     return unpad(d)
+
+def encode_aes256(cipher, iv, data, encryption_key):
+    """
+    Encrypt AES-256 bytes.
+    Allowed ciphers are: :ecb, :cbc.
+    If for :ecb iv is not used and should be set to "".
+    """
+    if cipher == 'cbc':
+        aes = AES.new(encryption_key, AES.MODE_CBC, iv)
+    elif cipher == 'ecb':
+        aes = AES.new(encryption_key, AES.MODE_ECB)
+    else:
+        raise ValueError('Unknown AES mode')
+    # PKCS#5 style pad cleartext for AES encryption - 16 byte blocksize - see  http://passingcuriosity.com/2009/aes-encryption-in-python-with-m2crypto/
+    BS=16
+    pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
+    d = aes.encrypt(pad(data))
+    return d
