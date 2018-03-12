@@ -46,6 +46,9 @@ def getLPBlob(filename="fooba.bin",username="johndoe@nowhere.org",passwordIn='no
     return results
 	
 def mixrange(s):
+    """
+    Split text of comma range eg 1-3,7,8 ==> [1,2,3,7,8]
+    """
     r = []
     for i in s.split(','):
         if '-' not in i:
@@ -127,7 +130,7 @@ def searchFileBlob(filename="fooba.bin",username="johndoe@nowhere.org",passwordI
 																										   white + 
 																										   white.join(pp.sub("*",i.notes).splitlines(1)))
 					print "/-+-\\-+-"*10
-			revealStr=raw_input("Enter item numbers to reveal, space delimited [empty to quit]: ")
+			revealStr=raw_input("Enter item numbers to reveal, Comma-delimited(eg 1-3,7,8) [empty to quit]: ")
         Filter=raw_input("Enter Search Filter[empty to quit]: ")
     del(password)
     del(myrecdblob)
