@@ -44,6 +44,16 @@ def getLPBlob(filename="fooba.bin",username="johndoe@nowhere.org",passwordIn='no
         del(passwordIn)
         del(myblob) 
     return results
+	
+def mixrange(s):
+    r = []
+    for i in s.split(','):
+        if '-' not in i:
+            r.append(int(i))
+        else:
+            l,h = map(int, i.split('-'))
+            r+= range(l,h+1)
+    return r
 
 def searchFileBlob(filename="fooba.bin",username="johndoe@nowhere.org",passwordIn='nothing',FilterIn='-1',BlobIn=None,timeout=600):
     """
@@ -82,16 +92,42 @@ def searchFileBlob(filename="fooba.bin",username="johndoe@nowhere.org",passwordI
             #reset inactivity timer
             timesUp[0]=time.time()+timeout
         p = re.compile(Filter, re.IGNORECASE)
+        pp = re.compile("[a-z0-9\!\@\#\$\%\^\&\:\*\.]", re.IGNORECASE)
         print "*"*40 + " '%s'" % Filter
         white=" "*7
-        for i in myothervault.accounts:
-            if p.search("%s"*7 % (i.group,i.id,i.name,i.username,i.password,i.url,i.notes)):
-                print "Group: %s\n\tEntry: %-30s URL: '%s'\n\t User: %-29s PW: '%s' \n\tNOTES:\n%s" % (i.group,
-                                                                                                       i.name,i.url,
-                                                                                                       i.username,i.password,
-                                                                                                       white + 
-                                                                                                       white.join(i.notes.splitlines(1)))
-                print "/-+-\\-+-"*10
+        revealStr="0"
+        reveal=[]
+        while len(revealStr.strip())>0:
+			reveal=mixrange(revealStr)
+			if time.time()>timesUp[0] or time.time()>timesUp[1]:
+				#inactivity or absolute timer timeout
+				if time.time()>timesUp[0]:
+					print "Vault inactivity timeout...Exiting"
+				else:
+					print "Vault absolute time timeout...Exiting"
+				break 
+			else:
+				#reset inactivity timer
+				timesUp[0]=time.time()+timeout
+			entry=0
+			for i in myothervault.accounts:
+				if p.search("%s"*7 % (i.group,i.id,i.name,i.username,i.password,i.url,i.notes)):
+					entry+=1
+					print "ITEM: ",entry
+					if entry in reveal:
+						print "Group: %s\n\tEntry: %-30s URL: '%s'\n\t User: %-29s PW: '%s' \n\tNOTES:\n%s" % (i.group,
+																										   i.name,i.url,
+																										   i.username,i.password,
+																										   white + 
+																										   white.join(i.notes.splitlines(1)))
+					else:	
+						print "Group: %s\n\tEntry: %-30s URL: '%s'\n\t User: %-29s PW: '%s' \n\tNOTES:\n%s" % (i.group,
+																										   i.name,i.url,
+																										   i.username,'*'*len(i.password),
+																										   white + 
+																										   white.join(pp.sub("*",i.notes).splitlines(1)))
+					print "/-+-\\-+-"*10
+			revealStr=raw_input("Enter item numbers to reveal, space delimited [empty to quit]: ")
         Filter=raw_input("Enter Search Filter[empty to quit]: ")
     del(password)
     del(myrecdblob)
