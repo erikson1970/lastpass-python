@@ -100,13 +100,25 @@ def searchFileBlob(filename="fooba.bin",username="johndoe@nowhere.org",passwordI
 
 def main(argv):
     """Parse command line inputs and execute actions."""
-    helpstring =  'localLPquery.py -a <action[search]> -i <filename[LP.bin]> -f <filter> -u <user> -t'
+    helpstring =  '''localLPquery.py [options] -i <filename[LP.bin]> -u <user> 
+General Options
+     -a --action <xx>   select action
+                             search ==> search local file [default]
+                             get    ==> download a new file
+     -i --filename <xx> input filename (required)
+     -u --username <xx> username for download or local file (required)
+Search mode options
+     -f --filter <xx>   set reg-ex search filter for decoding local file
+     -v --timeout <xx>  set timeout in seconds - time until vault lockout due to inactivity [600] 
+Get mode options
+     -t --tag           timetag downloaded file
+     -o --topt <xx>     time-based one time passcode (optional)'''
     try:
         opts, args = getopt.getopt(argv,"ha:i:f:u:o:tv:",["action=","ifile=","filter=","user=","topt=","tag","timeout="])
     except getopt.GetoptError:
         print helpstring
         sys.exit(2)
-    filename="LP.bin"
+    filename="LP.asc"
     filterIt='-1'
     action='search'
     timeout=600
