@@ -260,6 +260,13 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual(parser.decode_base64('YWJj'), b'abc')
         self.assertEqual(parser.decode_base64('YWJjZA=='), b'abcd')
 
+    def test_encode_base64_encodes_base64(self):
+        self.assertEqual(parser.encode_base64(b''), '')
+        self.assertEqual(parser.encode_base64(b'a'), 'YQ==')
+        self.assertEqual(parser.encode_base64(b'ab'), 'YWI=')
+        self.assertEqual(parser.encode_base64(b'abc'), 'YWJj')
+        self.assertEqual(parser.encode_base64(b'abcd'), 'YWJjZA==')
+
     def test_decode_aes256_plain_auto_decodes_a_blank_string(self):
         self.assertEqual(parser.decode_aes256_plain_auto(b'', self.encryption_key), b'')
 
@@ -345,3 +352,18 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual(parser.decode_aes256_cbc_base64(
             '!YFuiAVZgOD2K+s6y8yaMOw==|TZ1+if9ofqRKTatyUaOnfudletslMJ/RZyUwJuR/+aI=', self.encryption_key),
             b'All your base are belong to us')
+
+    def test_encode_aes256_cbc_base64_encodes_a_blank_string(self):
+        self.assertEqual(parser.encode_aes256_cbc_base64(
+            b'', self.encryption_key,b'\x00'*16),
+            '')
+
+    def test_encode_aes256_cbc_base64_encodes_a_short_string(self):
+        self.assertEqual(parser.encode_aes256_cbc_base64(
+            b'0123456789', self.encryption_key,b64decode('6TZb9bbrqpocMaNgFjrhjw==')),
+            '!6TZb9bbrqpocMaNgFjrhjw==|f7RcJ7UowesqGk+um+P5ug==')
+
+    def test_encode_aes256_cbc_base64_encodes_a_long_string(self):
+        self.assertEqual(parser.encode_aes256_cbc_base64(
+            b'All your base are belong to us', self.encryption_key,b64decode('YFuiAVZgOD2K+s6y8yaMOw==')),
+            '!YFuiAVZgOD2K+s6y8yaMOw==|TZ1+if9ofqRKTatyUaOnfudletslMJ/RZyUwJuR/+aI=')

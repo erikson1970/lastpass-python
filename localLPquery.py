@@ -44,7 +44,7 @@ def getLPBlob(filename="fooba.bin",username="johndoe@nowhere.org",passwordIn='no
         del(passwordIn)
         del(myblob) 
     return results
-	
+    
 def mixrange(s):
     """
     Split text of comma range eg 1-3,7,8 ==> [1,2,3,7,8]
@@ -58,6 +58,8 @@ def mixrange(s):
             r+= range(l,h+1)
     return r
 
+def cls():os.system('cls' if os.name=='nt' else 'clear')
+    
 def searchFileBlob(filename="fooba.bin",username="johndoe@nowhere.org",passwordIn='nothing',FilterIn='-1',BlobIn=None,timeout=600):
     """
     Open, Parse and search LP data from local file repository
@@ -80,12 +82,14 @@ def searchFileBlob(filename="fooba.bin",username="johndoe@nowhere.org",passwordI
         myrecdblob=lastpass.Vault.readblob_local(username,password,filename=filename)
     else:
         myrecdblob=BlobIn
+    written=False
     timeOpen=time.time()
     timesUp=[timeOpen+timeout,timeOpen+6*timeout]
     myothervault = lastpass.Vault.open(myrecdblob, username, password)
     while len(Filter.strip())>0:
         if time.time()>timesUp[0] or time.time()>timesUp[1]:
             #inactivity or absolute timer timeout
+            cls()
             if time.time()>timesUp[0]:
                 print "Vault inactivity timeout...Exiting"
             else:
@@ -101,37 +105,37 @@ def searchFileBlob(filename="fooba.bin",username="johndoe@nowhere.org",passwordI
         revealStr="0"
         reveal=[]
         while len(revealStr.strip())>0:
-			reveal=mixrange(revealStr)
-			if time.time()>timesUp[0] or time.time()>timesUp[1]:
-				#inactivity or absolute timer timeout
-				if time.time()>timesUp[0]:
-					print "Vault inactivity timeout...Exiting"
-				else:
-					print "Vault absolute time timeout...Exiting"
-				break 
-			else:
-				#reset inactivity timer
-				timesUp[0]=time.time()+timeout
-			entry=0
-			for i in myothervault.accounts:
-				if p.search("%s"*7 % (i.group,i.id,i.name,i.username,i.password,i.url,i.notes)):
-					entry+=1
-					print "ITEM: ",entry
-					if entry in reveal:
-						print "Group: %s\n\tEntry: %-30s URL: '%s'\n\t User: %-29s PW: '%s' \n\tNOTES:\n%s" % (i.group,
-																										   i.name,i.url,
-																										   i.username,i.password,
-																										   white + 
-																										   white.join(i.notes.splitlines(1)))
-					else:	
-						print "Group: %s\n\tEntry: %-30s URL: '%s'\n\t User: %-29s PW: '%s' \n\tNOTES:\n%s" % (i.group,
-																										   i.name,i.url,
-																										   i.username,'*'*len(i.password),
-																										   white + 
-																										   white.join(pp.sub("*",i.notes).splitlines(1)))
-					print "/-+-\\-+-"*10
-			revealStr=raw_input("Enter item numbers to reveal, Comma-delimited(eg 1-3,7,8) [empty to quit]: ")
+            reveal=mixrange(revealStr)    
+            if time.time()>timesUp[0] or time.time()>timesUp[1]:
+                #inactivity or absolute timer timeout
+                cls()
+                written=False
+                if time.time()>timesUp[0]:
+                    print "Vault inactivity timeout...Exiting"
+                else:
+                    print "Vault absolute time timeout...Exiting"
+                break 
+            else:
+                #reset inactivity timer
+                timesUp[0]=time.time()+timeout
+            entry=0
+            cls()
+            written=False
+            for i in myothervault.accounts:
+                if p.search("%s"*7 % (i.group,i.id,i.name,i.username,i.password,i.url,i.notes)):
+                    entry+=1
+                    written=True
+                    print "ITEM: ",entry
+                    print "Group: %s\n\tEntry: %-30s URL: '%s'\n\t User: %-29s PW: "%(i.group,i.name,i.url,i.username),
+                    if entry in reveal:
+                        print "'%s' \n\tNOTES:\n%s" % (i.password,white + white.join(i.notes.splitlines(1)))
+                    else:    
+                        print "'%s' \n\tNOTES:\n%s" % ('*'*len(i.password),white + white.join(pp.sub("*",i.notes).splitlines(1)))
+                    print "/-+-\\-+-"*10
+            revealStr=raw_input("Enter item numbers to reveal, Comma-delimited(eg 1-3,7,8) [empty to quit]: ")
         Filter=raw_input("Enter Search Filter[empty to quit]: ")
+    if written:
+        cls()
     del(password)
     del(myrecdblob)
     del(myothervault)
@@ -185,7 +189,15 @@ Get mode options
     if action == 'search':
         while not os.path.isfile(filename):
             print "Invalid File: %s" % filename
-            filename=raw_input("Enter Valid Filename: ")
+            ascFiles=os.listdir(".")
+            for asci in range(len(ascFiles)-1,-1,-1):
+                if "asc" not in ascFiles[asci] and "ASC" not in ascFiles[asci]:
+                    del(ascFiles[asci])
+            for asci in range(len(ascFiles)):
+                print "File " + str(asci), ascFiles[asci]
+            filename=raw_input("Choose " + str(range(len(ascFiles))) + " or Enter Valid Filename: ")
+            if len(filename)<3:
+                filename=ascFiles[int(filename)]
         if username is None:
             print "Invalid username:"
             username=raw_input("Enter Valid username: ")            
