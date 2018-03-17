@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Download, store locally and parse LP data from web.
 
 Allows for downloading, storage, parsing and searching of LP blobs.
