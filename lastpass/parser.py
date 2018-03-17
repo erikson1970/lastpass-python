@@ -5,7 +5,7 @@ import codecs
 from io import BytesIO
 import struct
 import re
-from zlib import compress,decompress
+from zlib import compress, decompress
 
 from os import urandom
 from Crypto.Cipher import AES
@@ -318,8 +318,8 @@ def encode_aes256(cipher, iv, data, encryption_key):
         aes = AES.new(encryption_key, AES.MODE_ECB)
     else:
         raise ValueError('Unknown AES mode')
-    # PKCS#5 style pad cleartext for AES encryption - 16 byte blocksize - see  http://passingcuriosity.com/2009/aes-encryption-in-python-with-m2crypto/
-    BS=16
+    # PKCS#5 style pad cleartext for AES encryption - 16 byte blocksize - see  http://passingcuriosity.com/2009/aes-encryption-in-python-with-m2crypto / 
+    BS = 16
     pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
     d = aes.encrypt(pad(data))
     return d
