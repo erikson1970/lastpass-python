@@ -130,12 +130,12 @@ def searchFileBlob(filename="fooba.bin", username="johndoe@nowhere.org", passwor
             matchArray=[]
             for i in myothervault.accounts:
                 if p.search("%s" * 7 % (i.group, i.id, i.name, i.username, i.password, i.url, i.notes)):
-					matchArray.append(i)
-					if i.group in matches:
-						matches[i.group].append(entry)
-					else:
-						matches[i.group]=[entry]
-					entry += 1
+                    matchArray.append(i)
+                    if i.group in matches:
+                        matches[i.group].append(entry)
+                    else:
+                        matches[i.group]=[entry]
+                entry += 1
             for myGroup in sorted(matches):
                 print "Group: %s\n"%(myGroup),
                 for entry in matches[myGroup]: 
