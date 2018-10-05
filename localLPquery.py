@@ -153,8 +153,8 @@ def searchFileBlob(filename="fooba.bin", username="johndoe@nowhere.org", passwor
         Filter = raw_input("Enter Search Filter[empty to quit]: ")
     if written:
         cls()
-	del(matchArray)
-	del(matches)
+    del(matchArray)
+    del(matches)
     del(password)
     del(myrecdblob)
     del(myothervault)
