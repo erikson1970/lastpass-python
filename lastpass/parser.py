@@ -8,9 +8,15 @@ import re
 from zlib import compress, decompress
 
 from os import urandom
-from Cryptodome.Cipher import AES
-from Cryptodome.Util import number
-from Cryptodome.PublicKey import RSA
+try:
+    #prefer the pure python implementation of crypto libraries
+    from Cryptodome.Cipher import AES
+    from Cryptodome.Util import number
+    from Cryptodome.PublicKey import RSA
+except:
+    from Crypto.Cipher import AES
+    from Crypto.Util import number
+    from Crypto.PublicKey import RSA
 
 from .account import Account
 from .chunk import Chunk
