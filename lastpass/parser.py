@@ -154,6 +154,12 @@ def read_chunk(stream):
     #   000C: --- Next chunk ---
     return Chunk(read_id(stream), read_payload(stream, read_size(stream)))
 
+def write_chunk(stream,chunk):
+    """Writes one chunk from a stream from a Chunk object."""
+    #TODO finish this stuff
+    stream.write(u'IDID')
+    return Chunk(read_id(stream), read_payload(stream, read_size(stream)))
+
 
 def read_item(stream):
     """Reads an item from a stream and returns it as a string of bytes."""
