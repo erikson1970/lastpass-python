@@ -126,21 +126,35 @@ def searchFileBlob(filename="fooba.bin", username="johndoe@nowhere.org", passwor
             entry = 0
             cls()
             written = False
+            matches={}
+            matchArray=[]
             for i in myothervault.accounts:
                 if p.search("%s" * 7 % (i.group, i.id, i.name, i.username, i.password, i.url, i.notes)):
+					matchArray.append(i)
+					if i.group in matches:
+						matches[i.group].append(entry)
+					else:
+						matches[i.group]=[entry]
+					entry += 1
+            for myGroup in sorted(matches):
+                print "Group: %s\n"%(myGroup),
+                for entry in matches[myGroup]: 
+                    i=matchArray[entry]
                     entry += 1
                     written = True
-                    print "ITEM: ", entry
-                    print "Group: %s\n\tEntry: %-30s URL: '%s'\n\t User: %-29s PW: "%(i.group, i.name, i.url, i.username),
+                    print "\tITEM: ", entry
+                    print "\tEntry: %-30s URL: '%s'\n\t User: %-29s PW: "%(i.name, i.url, i.username),
                     if entry in reveal:
                         print "'%s' \n\tNOTES:\n%s" % (i.password, white + white.join(i.notes.splitlines(1)))
                     else:
                         print "'%s' \n\tNOTES:\n%s" % ('*'*len(i.password), white + white.join(pp.sub("*", i.notes).splitlines(1)))
-                    print "/-+-\\-+-"*10
+                    print "\t/-+-\\-+-"+"/-+-\\-+-"*10
             revealStr = raw_input("Enter item numbers to reveal, Comma-delimited(eg 1-3,7,8) [empty to quit]: ")
         Filter = raw_input("Enter Search Filter[empty to quit]: ")
     if written:
         cls()
+	del(matchArray)
+	del(matches)
     del(password)
     del(myrecdblob)
     del(myothervault)
