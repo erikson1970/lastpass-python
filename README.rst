@@ -1,12 +1,6 @@
 LastPass Python API
 ===================
 
-.. image:: https://travis-ci.org/konomae/lastpass-python.svg?branch=master
-  :target: https://travis-ci.org/konomae/lastpass-python
-
-.. image:: https://codecov.io/gh/konomae/lastpass-python/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/konomae/lastpass-python
-
 :Original: `lastpass-ruby <https://github.com/detunized/lastpass-ruby>`_
 
 **This is unofficial LastPass API**
